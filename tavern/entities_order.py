@@ -1,67 +1,62 @@
 import random
 
-# 1. Создаем "Чертеж" гостя
-class Guest:
-    # __init__ - это конструктор. Он запускается, когда рождается новый гость.
-    # self - это ссылка на КОНКРЕТНОГО гостя (чтобы не перепутать Петю с Васей)
-    def __init__(self, race, name, min_money, max_money):
-        self.race = race        # Запоминаем расу
-        self.money = random.randint(min_money, max_money) # Даем денег
-        self.patience = 3       # Уровень терпения (если товара нет, оно падает)
-        self.name = name
+NAMES = ["Петя", "Вася", "Коля", "Оля", "Миша", "Legolas", "Gimli", "Bob"]
 
-    # Метод: Гость пытается заплатить
+RACES_INFO = [
+        ("Elf", 50, 100, ["elf_bread", "wine", "salad"]),
+        ("Orc", 5, 20, ["meat", "beer", "bones"]),
+        ("Human", 20, 60, ["bread", "beer", "meat", "soup"])
+    ]
+
+class Guest:
+
+    def __init__(self, race, name, min_money, max_money, preferences):
+        self.race = race
+        self.name = name
+        self.money = random.randint(min_money, max_money)
+        self.preferences = preferences 
+
     def pay(self, amount):
         if self.money >= amount:
             self.money -= amount
-            return True # Успешно заплатил
+            return True
         else:
-            return False # Денег нет, бака!
+            return False
 
-    # Метод: Красивый вывод информации (чтобы не видеть <__main__.Guest object>)
     def __str__(self):
-        return f"{self.race} {self.name} (Кошелек: {self.money})"
-
+        return f"{self.race} {self.name}"
 
 def spawn_guest():
-    names = ["Петя", "Вася", "Коля", "Оля", "Миша", "Legolas", "Gimli", "Bob"]
-
-    races_info = [
-        ("Elf", 50, 100),
-        ("Orc", 5, 20),
-        ("Human", 20, 60)
-    ]
-    choice = random.choice(races_info)
-    # Создаем ОБЪЕКТ класса Guest
-    new_guest = Guest(choice[0], random.choice(names), choice[1], choice[2]) 
+    choice = random.choice(RACES_INFO)
+    
+    new_guest = Guest(choice[0], random.choice(NAMES), choice[1], choice[2], choice[3])
     return new_guest
 
-# Твоя функция, переделанная под классы
 def entities_order_oop(tavern_money, storage, prices):
-    # Генерируем случайного гостя (уже с деньгами и характером!)
     guest = spawn_guest()
-    
-    print(f"--- Дзинь! Дверь открылась ---")
-    print(f"Вошел: {guest}") # Тут сработает наш def __str__
+    print(f"--- Дзинь! ---")
+    print(f"Вошел: {guest}")
 
-    # Гость выбирает, что хочет
-    order = random.choice(list(storage.keys()))
-    print(f"Он хочет заказать: {order}")
+    wanted_food = random.choice(guest.preferences)
+    food_name_ru = storage[wanted_food]["name"]
+    print(f"Он хочет заказать: {food_name_ru}")
 
-    price = prices[order]["sell"]
 
-    # Логика проверки
-    if storage[order] > 0:
-        # Проверяем, может ли гость заплатить своим личным методом
-        if guest.pay(price):
-            storage[order] -= 1
-            tavern_money += price
-            print(f"{guest.race} доволен и заплатил {price} монет.")
+    if wanted_food in storage:
+        price = prices[wanted_food]["sell"]
+
+        if storage[wanted_food]["amount"] > 0:
+
+            if guest.pay(price):               
+                storage[wanted_food]["amount"] -= 1 
+                tavern_money += price
+                print(f"{guest.name} с удовольствием съел {food_name_ru}.")
+            
         else:
-            print(f"У {guest.race} не хватило денег! Какая жалость.")
+            food_name_ru = storage[wanted_food]["name"]
+            print(f"У {guest.name} не хватило денег на {food_name_ru}!")
     else:
-        print(f"Товара '{order}' нет! {guest.race} устроил скандал.")
-        # Тут можно уменьшить терпение гостя или вычесть деньги за ущерб
-        tavern_money -= 5 
+        print(f"Официант: 'Мы такое не готовим!'")
+        print(f"{guest.name} смотрит на вас как на идиота.")
 
     return tavern_money

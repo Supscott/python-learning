@@ -7,10 +7,14 @@ def main():
     days = 0
 
     storage = {
-        "beer": 10,
-        "wine": 5,
-        "meat": 3,
-        "bread": 10,
+        "beer": { "name": "Пиво", "amount": 10 },
+        "salad": { "name": "Салат", "amount": 5 },
+        "soup": { "name": "Суп", "amount": 7 },
+        "wine": { "name": "Вино", "amount": 3 },
+        "meat": { "name": "Жареное мясо", "amount": 8 },
+        "bread": { "name": "Хлеб", "amount": 15 },
+        "elf_bread": { "name": "Эльфийский хлеб", "amount": 4 },
+        "bones": { "name": "Кости", "amount": 6 },
     }
 
     user_tavern_name = input("Введи название таверны: ")
@@ -30,8 +34,8 @@ def main():
                 print(f"{item}: {amount}")
         print("-----")
         
-        money = entities_order.entities_order_oop(money, storage, store.prices)
-        money = store.store(money, storage)
+        entities_order.entities_order_oop(money, storage, store.prices)
+        store.store(money, storage)
 
         if money <= 0:
             print("Мы банкроты")
